@@ -1,0 +1,34 @@
+#!/bin/bash
+
+## Usage:
+## bash run_motif_scan.sh > motif_scan.out 2>&1
+##
+
+ORIG_DIR=`pwd`
+PIQ_CODE_DIR="/mnt/dv/wid/projects2/Roy-common/programs/scripts/motif_finding_pipeline_example/piq_code"
+OUT_DIR=${ORIG_DIR}/"MotifScanResults"
+
+## Local R lib location
+R_LIB_LOC="/mnt/ws/home/spyne/R/x86_64-conda_cos6-linux-gnu-library/3.5"
+
+## Number of motifs in afumPFM.txt
+NUM_MOTIF=628
+
+## Loads R-3.5.3
+module load anaconda3-2020.02
+
+## Install package "BSgenome.Afum.ASM265v1_1.0.0" in the given local lib
+R CMD INSTALL -l ${R_LIB_LOC} ${ORIG_DIR}/BSgenome.Afum.ASM265v1_1.0.0.tar.gz ## install package
+
+mkdir ${OUT_DIR}
+
+## Go to PIQ code dir
+cd ${PIQ_CODE_DIR}
+
+for motif_idx in $(seq 1 ${NUM_MOTIF})
+do
+	Rscript pwmmatch.exact.r ${ORIG_DIR}/common.Afum.r ${ORIG_DIR}/afumPFM.txt ${motif_idx} ${OUT_DIR}
+done
+
+## Return to the original dir
+cd ${ORIG_DIR}
